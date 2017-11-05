@@ -70,6 +70,7 @@ export type ApolloReducerConfig = {
   addTypename?: boolean;
   cacheResolvers?: CacheResolverMap;
   storeFactory?: NormalizedCacheFactory;
+  cacheControl?: boolean;
 };
 
 export type ReadStoreContext = {

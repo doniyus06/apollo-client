@@ -43,6 +43,8 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   protected optimistic: OptimisticStoreItem[] = [];
   private watches: Cache.WatchOptions[] = [];
   private addTypename: boolean;
+  private cacheControl: boolean;
+  private cacheControlData: any;
 
   // Set this while in a transaction to prevent broadcasts...
   // don't forget to turn it back on!
@@ -55,6 +57,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     if ((this.config as any).customResolvers)
       this.config.cacheResolvers = (this.config as any).customResolvers;
     this.addTypename = this.config.addTypename ? true : false;
+    this.cacheControl = this.config.cacheControl ? true : false;
     this.data = this.config.storeFactory();
   }
 
@@ -73,6 +76,9 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   }
 
   public read<T>(query: Cache.ReadOptions): T | null {
+    console.log('### InMemoryCache.read()');
+    console.log(query);
+    // TODO: check and evict?
     if (query.rootId && this.data.get(query.rootId) === undefined) {
       return null;
     }
@@ -89,6 +95,32 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   }
 
   public write(write: Cache.WriteOptions): void {
+    console.log('#########################');
+    console.log('### InMemoryCache.write()');
+    console.log(write);
+    // TODO: normalize path
+    // TODO: calculate expiration time
+    // TODO: check if dataId === ROOT_QUERY
+    if (this.cacheControl === true) {
+      // TODO: should not overwrite?
+      this.cacheControlData = write.extensions.cacheControl.hints;
+      const now = Math.floor(Date.now() / 1000);
+
+      this.cacheControlData.map(
+        (hint: any) => (hint.expires = hint.maxAge > 0 ? now + hint.maxAge : 0),
+      );
+      console.log('[cache control data]');
+      console.log(this.cacheControlData);
+      console.log('[store]');
+      console.log(this.data);
+
+      if (this.config.dataIdFromObject(write.result) === null) {
+        // console.log('null data id from object, easy one!');
+      } else {
+        // console.log('oh no');
+      }
+    }
+
     writeResultToStore({
       dataId: write.dataId,
       result: write.result,
@@ -123,6 +155,12 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   }
 
   public evict(query: Cache.EvictOptions): Cache.EvictionResult {
+    console.log('InMemoryCache.evict()');
+    const now = Date.now();
+    console.log('### now');
+    console.log(now);
+    // TODO: go through all paths and delete as needed
+
     throw new Error(`eviction is not implemented on InMemory Cache`);
   }
 
@@ -224,6 +262,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     this.write({
       dataId: 'ROOT_QUERY',
       result: options.data,
+      // extensions: options.extensions,
       query: this.transformDocument(options.query),
       variables: options.variables,
     });
@@ -233,6 +272,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     this.write({
       dataId: options.id,
       result: options.data,
+      // extensions: options.extensions,
       query: this.transformDocument(
         getFragmentQueryDocument(options.fragment, options.fragmentName),
       ),

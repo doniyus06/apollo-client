@@ -15,6 +15,7 @@ export namespace Cache {
   export interface WriteOptions extends DataProxy.Query {
     dataId: string;
     result: any;
+    extensions?: any;
   }
 
   export interface DiffOptions extends ReadOptions {

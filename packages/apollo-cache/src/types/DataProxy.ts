@@ -49,6 +49,7 @@ export namespace DataProxy {
      * The data you will be writing to the store.
      */
     data: any;
+    extensions?: any;
   }
 
   export interface WriteFragmentOptions extends Fragment {
@@ -56,6 +57,7 @@ export namespace DataProxy {
      * The data you will be writing to the store.
      */
     data: any;
+    extensions?: any;
   }
 
   export type DiffResult<T> = {

@@ -394,6 +394,8 @@ function writeFieldToStore({
     }
 
     if (!isDataProcessed(valueDataId, field, context.processedData)) {
+      console.log('writing selection set');
+      console.log(valueDataId);
       writeSelectionSetToStore({
         dataId: valueDataId,
         result: value,

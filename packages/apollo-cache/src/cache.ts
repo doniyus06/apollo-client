@@ -86,6 +86,7 @@ export abstract class ApolloCache<TSerialized> implements DataProxy {
     this.write({
       dataId: 'ROOT_QUERY',
       result: options.data,
+      extensions: options.extensions,
       query: options.query,
       variables: options.variables,
     });
@@ -95,6 +96,7 @@ export abstract class ApolloCache<TSerialized> implements DataProxy {
     this.write({
       dataId: options.id,
       result: options.data,
+      extensions: options.extensions,
       variables: options.variables,
       query: getFragmentQueryDocument(options.fragment, options.fragmentName),
     });
