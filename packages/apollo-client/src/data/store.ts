@@ -47,6 +47,7 @@ export class DataStore<TSerialized> {
     if (!fetchMoreForQueryId && writeWithErrors) {
       this.cache.write({
         result: result.data,
+        extensions: result.extensions,
         dataId: 'ROOT_QUERY',
         query: document,
         variables: variables,
@@ -64,6 +65,7 @@ export class DataStore<TSerialized> {
     if (!graphQLResultHasError(result)) {
       this.cache.write({
         result: result.data,
+        extensions: result.extensions,
         dataId: 'ROOT_SUBSCRIPTION',
         query: document,
         variables: variables,
