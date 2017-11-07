@@ -18,6 +18,8 @@ import { writeResultToStore } from './writeToStore';
 import { readQueryFromStore, diffQueryAgainstStore } from './readFromStore';
 import { defaultNormalizedCacheFactory } from './objectCache';
 import { record } from './recordingCache';
+import { generateCacheControlData } from './cacheControl';
+
 const defaultConfig: ApolloReducerConfig = {
   fragmentMatcher: new HeuristicFragmentMatcher(),
   dataIdFromObject: defaultDataIdFromObject,
@@ -78,12 +80,14 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   public read<T>(query: Cache.ReadOptions): T | null {
     console.log('### InMemoryCache.read()');
     console.log(query);
+    console.log('[store]');
+    console.log(JSON.stringify(this.data, null, 2));
     // TODO: check and evict?
     if (query.rootId && this.data.get(query.rootId) === undefined) {
       return null;
     }
 
-    return readQueryFromStore({
+    const options = {
       store: this.config.storeFactory(this.extract(query.optimistic)),
       query: this.transformDocument(query.query),
       variables: query.variables,
@@ -91,39 +95,37 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
       fragmentMatcherFunction: this.config.fragmentMatcher.match,
       previousResult: query.previousResult,
       config: this.config,
-    });
+    };
+    console.log('options');
+    console.log(options);
+    return readQueryFromStore(options);
   }
 
   public write(write: Cache.WriteOptions): void {
     console.log('#########################');
     console.log('### InMemoryCache.write()');
-    console.log(write);
+    // console.log(JSON.stringify(write, null, 2));
     // TODO: normalize path
-    // TODO: calculate expiration time
     // TODO: check if dataId === ROOT_QUERY
     if (this.cacheControl === true) {
+      this.cacheControlData = generateCacheControlData(write.extensions);
       // TODO: should not overwrite?
-      this.cacheControlData = write.extensions.cacheControl.hints;
-      const now = Math.floor(Date.now() / 1000);
 
-      this.cacheControlData.map(
-        (hint: any) => (hint.expires = hint.maxAge > 0 ? now + hint.maxAge : 0),
-      );
-      console.log('[cache control data]');
-      console.log(this.cacheControlData);
+      console.log('[this.cacheControlData]');
+      console.log(JSON.stringify(this.cacheControlData, null, 2));
       console.log('[store]');
       console.log(this.data);
-
-      if (this.config.dataIdFromObject(write.result) === null) {
-        // console.log('null data id from object, easy one!');
-      } else {
-        // console.log('oh no');
-      }
     }
 
+    console.log('---> going to call writeResultToStore with');
+    console.log(`dataId: ${write.dataId}`);
+    console.log(`result:`);
+    console.log(JSON.stringify(write.result, null, 2));
+    console.log('etc...');
     writeResultToStore({
       dataId: write.dataId,
       result: write.result,
+      extensions: write.extensions,
       variables: write.variables,
       document: this.transformDocument(write.query),
       store: this.data,

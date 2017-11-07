@@ -157,6 +157,7 @@ export function diffQueryAgainstStore<T>({
 
   variables = assign({}, getDefaultValues(queryDefinition), variables);
 
+  // TODO: extensions should be here?
   const context: ReadStoreContext = {
     // Global settings
     store,
@@ -172,6 +173,10 @@ export function diffQueryAgainstStore<T>({
     previousResult,
   };
 
+  // console.log('### diffQueryAgainstStore before graphqlAnywhere');
+  // console.log(`query: ${JSON.stringify(query, null, 2)}`);
+  // console.log(`rootIdValue: ${JSON.stringify(rootIdValue, null, 2)}`);
+  // console.log(`context: ${JSON.stringify(context, null, 2)}`);
   const result = graphqlAnywhere(
     readStoreResolver,
     query,
@@ -184,6 +189,9 @@ export function diffQueryAgainstStore<T>({
     },
   );
 
+  // console.log('### diffQueryAgainstStore result');
+  // console.log(JSON.stringify(result, null, 2));
+  // console.log(`COMPLETE???? ${!context.hasMissingField}`);
   return {
     result,
     complete: !context.hasMissingField,

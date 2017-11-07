@@ -73,6 +73,7 @@ export function enhanceErrorWithDocument(error: Error, document: DocumentNode) {
  */
 export function writeQueryToStore({
   result,
+  extensions,
   query,
   storeFactory = defaultNormalizedCacheFactory,
   store = storeFactory(),
@@ -82,6 +83,7 @@ export function writeQueryToStore({
   fragmentMatcherFunction,
 }: {
   result: Object;
+  extensions: Object;
   query: DocumentNode;
   store?: NormalizedCache;
   storeFactory?: NormalizedCacheFactory;
@@ -98,6 +100,7 @@ export function writeQueryToStore({
     return writeSelectionSetToStore({
       dataId: 'ROOT_QUERY',
       result,
+      extensions,
       selectionSet: queryDefinition.selectionSet,
       context: {
         store,
@@ -127,6 +130,7 @@ export type WriteContext = {
 export function writeResultToStore({
   dataId,
   result,
+  extensions,
   document,
   storeFactory = defaultNormalizedCacheFactory,
   store = storeFactory(),
@@ -136,6 +140,7 @@ export function writeResultToStore({
 }: {
   dataId: string;
   result: any;
+  extensions: any;
   document: DocumentNode;
   store?: NormalizedCache;
   storeFactory?: NormalizedCacheFactory;
@@ -146,6 +151,8 @@ export function writeResultToStore({
   // XXX TODO REFACTOR: this is a temporary workaround until query normalization is made to work with documents.
   const operationDefinition = getOperationDefinition(document);
   const selectionSet = operationDefinition.selectionSet;
+  console.log('-> start selectionSet');
+  console.log(JSON.stringify(selectionSet, null, 2));
   const fragmentMap = createFragmentMap(getFragmentDefinitions(document));
 
   variables = assign({}, getDefaultValues(operationDefinition), variables);
@@ -153,6 +160,7 @@ export function writeResultToStore({
   try {
     return writeSelectionSetToStore({
       result,
+      extensions,
       dataId,
       selectionSet,
       context: {
@@ -172,12 +180,14 @@ export function writeResultToStore({
 
 export function writeSelectionSetToStore({
   result,
+  extensions,
   dataId,
   selectionSet,
   context,
 }: {
   dataId: string;
   result: any;
+  extensions: any;
   selectionSet: SelectionSetNode;
   context: WriteContext;
 }): NormalizedCache {
@@ -188,6 +198,9 @@ export function writeSelectionSetToStore({
 
     if (isField(selection)) {
       const resultFieldKey: string = resultKeyNameFromField(selection);
+      console.log('### writeSelectionSetToStore');
+      console.log('-> resultFieldKey:');
+      console.log(resultFieldKey);
       const value: any = result[resultFieldKey];
 
       if (included) {
@@ -265,6 +278,7 @@ export function writeSelectionSetToStore({
       if (included && matches) {
         writeSelectionSetToStore({
           result,
+          extensions,
           selectionSet: fragment.selectionSet,
           dataId,
           context,
@@ -354,6 +368,8 @@ function writeFieldToStore({
           { type: 'json', json: value }
         : // Otherwise, just store the scalar directly in the store.
           value;
+    console.log('### writeFieldToStore -> storeValue (scalar)');
+    console.log(storeValue);
   } else if (Array.isArray(value)) {
     const generatedId = `${dataId}.${storeFieldName}`;
 
@@ -363,6 +379,8 @@ function writeFieldToStore({
       field.selectionSet,
       context,
     );
+    console.log('### writeFieldToStore -> storeValue (array)');
+    console.log(storeValue);
   } else {
     // It's an object
     let valueDataId = `${dataId}.${storeFieldName}`;
@@ -394,11 +412,12 @@ function writeFieldToStore({
     }
 
     if (!isDataProcessed(valueDataId, field, context.processedData)) {
-      console.log('writing selection set');
+      console.log('### writeFieldToStore -> writing selection set');
       console.log(valueDataId);
       writeSelectionSetToStore({
         dataId: valueDataId,
         result: value,
+        extensions: {},
         selectionSet: field.selectionSet,
         context,
       });
@@ -411,6 +430,8 @@ function writeFieldToStore({
       id: valueDataId,
       generated,
     };
+    console.log('### writeFieldToStore -> storeValue (object)');
+    console.log(storeValue);
 
     // check if there was a generated id at the location where we're
     // about to place this new id. If there was, we have to merge the
@@ -491,6 +512,7 @@ function processArrayValue(
       writeSelectionSetToStore({
         dataId: itemDataId,
         result: item,
+        extensions: {},
         selectionSet,
         context,
       });
