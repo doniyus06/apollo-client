@@ -152,6 +152,7 @@ export function diffQueryAgainstStore<T>({
   fragmentMatcherFunction,
   config,
 }: DiffQueryAgainstStoreOptions): Cache.DiffResult<T> {
+  console.log('### diffQueryAgainstStore');
   // Throw the right validation error by trying to find a query in the document
   const queryDefinition = getQueryDefinition(query);
 
@@ -167,6 +168,8 @@ export function diffQueryAgainstStore<T>({
     hasMissingField: false,
   };
 
+  console.log('[context]');
+  console.log(JSON.stringify(store, null, 2));
   const rootIdValue = {
     type: 'id',
     id: rootId,
@@ -177,6 +180,7 @@ export function diffQueryAgainstStore<T>({
   // console.log(`query: ${JSON.stringify(query, null, 2)}`);
   // console.log(`rootIdValue: ${JSON.stringify(rootIdValue, null, 2)}`);
   // console.log(`context: ${JSON.stringify(context, null, 2)}`);
+  // TODO: remove expired stuff from context.store ???
   const result = graphqlAnywhere(
     readStoreResolver,
     query,

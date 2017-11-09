@@ -37,7 +37,7 @@ const exampleCacheControlData = JSON.parse(exampleCacheControl);
 // TODO: request post.stuff should be 240 (falls under "post")
 // TODO: request post.votes should be 30 (falls under "post.votes")
 
-describe.only('cache control', () => {
+describe.skip('cache control', () => {
   it('generates the correct expires', () => {
     Date.now = jest.genMockFunction().mockReturnValue(1000000000000);
 

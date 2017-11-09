@@ -18,7 +18,7 @@ import { writeResultToStore } from './writeToStore';
 import { readQueryFromStore, diffQueryAgainstStore } from './readFromStore';
 import { defaultNormalizedCacheFactory } from './objectCache';
 import { record } from './recordingCache';
-import { generateCacheControlData } from './cacheControl';
+import { CacheControl } from './cacheControl';
 
 const defaultConfig: ApolloReducerConfig = {
   fragmentMatcher: new HeuristicFragmentMatcher(),
@@ -46,7 +46,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   private watches: Cache.WatchOptions[] = [];
   private addTypename: boolean;
   private cacheControl: boolean;
-  private cacheControlData: any;
+  private cacheControlManager: any;
 
   // Set this while in a transaction to prevent broadcasts...
   // don't forget to turn it back on!
@@ -60,6 +60,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
       this.config.cacheResolvers = (this.config as any).customResolvers;
     this.addTypename = this.config.addTypename ? true : false;
     this.cacheControl = this.config.cacheControl ? true : false;
+    this.cacheControlManager = new CacheControl();
     this.data = this.config.storeFactory();
   }
 
@@ -69,6 +70,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   }
 
   public extract(optimistic: boolean = false): NormalizedCacheObject {
+    console.log('### InMemoryCache.extract()');
     if (optimistic && this.optimistic.length > 0) {
       const patches = this.optimistic.map(opt => opt.data);
       return Object.assign({}, this.data.toObject(), ...patches);
@@ -80,9 +82,11 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   public read<T>(query: Cache.ReadOptions): T | null {
     console.log('### InMemoryCache.read()');
     console.log(query);
-    console.log('[store]');
-    console.log(JSON.stringify(this.data, null, 2));
+    // console.log('[store]');
+    // console.log(JSON.stringify(this.data, null, 2));
     // TODO: check and evict?
+    // console.log(`query.rootId=${query.rootId}`);
+    // console.log(`this.data.get(query.rootId)=${this.data.get(query.rootId)}`);
     if (query.rootId && this.data.get(query.rootId) === undefined) {
       return null;
     }
@@ -96,32 +100,36 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
       previousResult: query.previousResult,
       config: this.config,
     };
-    console.log('options');
-    console.log(options);
+    // console.log('options');
+    // console.log(options);
+    // const dataToReturn = readQueryFromStore(options);
+    // console.log('# result of readQueryFromStore');
+    // console.log(dataToReturn);
     return readQueryFromStore(options);
   }
 
   public write(write: Cache.WriteOptions): void {
-    console.log('#########################');
+    // console.log('#########################');
     console.log('### InMemoryCache.write()');
     // console.log(JSON.stringify(write, null, 2));
     // TODO: normalize path
     // TODO: check if dataId === ROOT_QUERY
     if (this.cacheControl === true) {
-      this.cacheControlData = generateCacheControlData(write.extensions);
+      this.cacheControlManager.generateCacheControlData(write.extensions);
+      // console.log(this.cacheControlManager.dump());
       // TODO: should not overwrite?
 
-      console.log('[this.cacheControlData]');
-      console.log(JSON.stringify(this.cacheControlData, null, 2));
-      console.log('[store]');
-      console.log(this.data);
+      // console.log('[this.cacheControlData]');
+      // console.log(JSON.stringify(this.cacheControlData, null, 2));
+      // console.log('[store]');
+      // console.log(this.data);
     }
 
-    console.log('---> going to call writeResultToStore with');
-    console.log(`dataId: ${write.dataId}`);
-    console.log(`result:`);
-    console.log(JSON.stringify(write.result, null, 2));
-    console.log('etc...');
+    // console.log('---> going to call writeResultToStore with');
+    // console.log(`dataId: ${write.dataId}`);
+    // console.log(`result:`);
+    // console.log(JSON.stringify(write.result, null, 2));
+    // console.log('etc...');
     writeResultToStore({
       dataId: write.dataId,
       result: write.result,
@@ -137,7 +145,8 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   }
 
   public diff<T>(query: Cache.DiffOptions): Cache.DiffResult<T> {
-    return diffQueryAgainstStore({
+    console.log('### InMemoryCache.diff()');
+    const result: any = diffQueryAgainstStore({
       store: this.config.storeFactory(this.extract(query.optimistic)),
       query: this.transformDocument(query.query),
       variables: query.variables,
@@ -146,9 +155,14 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
       fragmentMatcherFunction: this.config.fragmentMatcher.match,
       config: this.config,
     });
+
+    console.log(result);
+
+    return result;
   }
 
   public watch(watch: Cache.WatchOptions): () => void {
+    console.log('### InMemoryCache.watch()');
     this.watches.push(watch);
 
     return () => {
@@ -157,16 +171,15 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
   }
 
   public evict(query: Cache.EvictOptions): Cache.EvictionResult {
-    console.log('InMemoryCache.evict()');
-    const now = Date.now();
-    console.log('### now');
-    console.log(now);
-    // TODO: go through all paths and delete as needed
-
-    throw new Error(`eviction is not implemented on InMemory Cache`);
+    // throw new Error(`eviction is not implemented on InMemory Cache`);
+    const now = Math.floor(Date.now() / 1000);
+    console.log(`### InMemoryCache.evict() -> now=${now}`);
+    this.cacheControlManager.dump();
+    return { success: true };
   }
 
   public reset(): Promise<void> {
+    console.log('### InMemoryCache.reset()');
     this.data.clear();
     this.broadcastWatches();
 
@@ -239,6 +252,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     options: DataProxy.Query,
     optimistic: boolean = false,
   ): QueryType {
+    console.log('### InMemoryCache.readQuery()');
     return this.read({
       query: options.query,
       variables: options.variables,
@@ -250,6 +264,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
     options: DataProxy.Fragment,
     optimistic: boolean = false,
   ): FragmentType | null {
+    console.log('### InMemoryCache.readFragment()');
     return this.read({
       query: this.transformDocument(
         getFragmentQueryDocument(options.fragment, options.fragmentName),

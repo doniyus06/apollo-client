@@ -151,8 +151,8 @@ export function writeResultToStore({
   // XXX TODO REFACTOR: this is a temporary workaround until query normalization is made to work with documents.
   const operationDefinition = getOperationDefinition(document);
   const selectionSet = operationDefinition.selectionSet;
-  console.log('-> start selectionSet');
-  console.log(JSON.stringify(selectionSet, null, 2));
+  // console.log('-> start selectionSet');
+  // console.log(JSON.stringify(selectionSet, null, 2));
   const fragmentMap = createFragmentMap(getFragmentDefinitions(document));
 
   variables = assign({}, getDefaultValues(operationDefinition), variables);
@@ -198,9 +198,9 @@ export function writeSelectionSetToStore({
 
     if (isField(selection)) {
       const resultFieldKey: string = resultKeyNameFromField(selection);
-      console.log('### writeSelectionSetToStore');
-      console.log('-> resultFieldKey:');
-      console.log(resultFieldKey);
+      // console.log('### writeSelectionSetToStore');
+      // console.log('-> resultFieldKey:');
+      // console.log(resultFieldKey);
       const value: any = result[resultFieldKey];
 
       if (included) {
@@ -311,7 +311,7 @@ function mergeWithGenerated(
       mergeWithGenerated(value.id, realValue.id, cache);
     }
     cache.delete(generatedKey);
-    cache.set(realKey, { ...generated, ...real } as StoreObject);
+    cache.set(realKey, { ...generated, ...real } as StoreObject);;
   });
 }
 
@@ -349,11 +349,13 @@ function writeFieldToStore({
   context: WriteContext;
 }) {
   const { variables, dataIdFromObject, store } = context;
+  console.log('### writeFieldToStore');
 
   let storeValue: any;
   let storeObject: StoreObject;
 
   const storeFieldName: string = storeKeyNameFromField(field, variables);
+  console.log(`storeFieldName: ${storeFieldName}`);
   // specifies if we need to merge existing keys in the store
   let shouldMerge = false;
   // If we merge, this will be the generatedKey
@@ -361,6 +363,7 @@ function writeFieldToStore({
 
   // If this is a scalar value...
   if (!field.selectionSet || value === null) {
+    console.log('it is a scalar');
     storeValue =
       value != null && typeof value === 'object'
         ? // If the scalar value is a JSON blob, we have to "escape" it so it can’t pretend to be
@@ -368,8 +371,8 @@ function writeFieldToStore({
           { type: 'json', json: value }
         : // Otherwise, just store the scalar directly in the store.
           value;
-    console.log('### writeFieldToStore -> storeValue (scalar)');
-    console.log(storeValue);
+    // console.log('### writeFieldToStore -> storeValue (scalar)');
+    // console.log(storeValue);
   } else if (Array.isArray(value)) {
     const generatedId = `${dataId}.${storeFieldName}`;
 
@@ -379,9 +382,10 @@ function writeFieldToStore({
       field.selectionSet,
       context,
     );
-    console.log('### writeFieldToStore -> storeValue (array)');
-    console.log(storeValue);
+    // console.log('### writeFieldToStore -> storeValue (array)');
+    // console.log(storeValue);
   } else {
+    console.log('it is an object');
     // It's an object
     let valueDataId = `${dataId}.${storeFieldName}`;
     let generated = true;
@@ -392,6 +396,7 @@ function writeFieldToStore({
       valueDataId = '$' + valueDataId;
     }
 
+    console.log(`valueDataId: ${valueDataId}`);
     if (dataIdFromObject) {
       const semanticId = dataIdFromObject(value);
 
@@ -412,8 +417,8 @@ function writeFieldToStore({
     }
 
     if (!isDataProcessed(valueDataId, field, context.processedData)) {
-      console.log('### writeFieldToStore -> writing selection set');
-      console.log(valueDataId);
+      // console.log('### writeFieldToStore -> writing selection set');
+      // console.log(valueDataId);
       writeSelectionSetToStore({
         dataId: valueDataId,
         result: value,
@@ -429,9 +434,10 @@ function writeFieldToStore({
       type: 'id',
       id: valueDataId,
       generated,
+      expires: '1234'
     };
-    console.log('### writeFieldToStore -> storeValue (object)');
-    console.log(storeValue);
+    // console.log('### writeFieldToStore -> storeValue (object)');
+    // console.log(storeValue);
 
     // check if there was a generated id at the location where we're
     // about to place this new id. If there was, we have to merge the
@@ -469,6 +475,8 @@ function writeFieldToStore({
     ...store.get(dataId),
     [storeFieldName]: storeValue,
   } as StoreObject;
+  console.log('newStoreObj');
+  console.log(newStoreObj);
 
   if (shouldMerge) {
     mergeWithGenerated(generatedKey, (storeValue as IdValue).id, store);
@@ -476,6 +484,9 @@ function writeFieldToStore({
 
   storeObject = store.get(dataId);
   if (!storeObject || storeValue !== storeObject[storeFieldName]) {
+    console.log('store.set');
+    console.log(`dataId: ${dataId}`);
+    console.log(newStoreObj);
     store.set(dataId, newStoreObj);
   }
 }
