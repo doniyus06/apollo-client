@@ -64,7 +64,7 @@
     "@types/lodash": "4.14.88",
     "@types/node": "8.0.57",
     "apollo-cache-inmemory": "^1.1.4",
-    "apollo-cache-redux": "^0.1.0-alpha.2",
+    "apollo-cache-redux": "file:../../../apollo-cache-redux",
     "benchmark": "2.1.4",
     "browserify": "14.5.0",
     "bundlesize": "0.15.3",

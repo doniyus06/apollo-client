@@ -8,12 +8,12 @@ import runSubscribeToMore from './subscribeToMore';
 
 function runTests(implementation: any) {
   runApolloClient(implementation);
-  runClient(implementation);
-  runFetchMore(implementation);
-  runGraphQLSubscription(implementation);
-  runMutationResults(implementation);
-  runOptimistic(implementation);
-  runSubscribeToMore(implementation);
+  // runClient(implementation);
+  // runFetchMore(implementation);
+  // runGraphQLSubscription(implementation);
+  // runMutationResults(implementation);
+  // runOptimistic(implementation);
+  // runSubscribeToMore(implementation);
 }
 
 export default runTests;
