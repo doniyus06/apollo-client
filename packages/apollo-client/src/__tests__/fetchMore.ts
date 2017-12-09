@@ -1,7 +1,7 @@
-import { InMemoryCache } from 'apollo-cache-inmemory';
 import { assign, cloneDeep } from 'lodash';
 import gql from 'graphql-tag';
 
+import cacheImplementation from './config';
 import { mockSingleLink } from '../__mocks__/mockLinks';
 import ApolloClient, { NetworkStatus, ObservableQuery } from '../';
 
@@ -34,7 +34,7 @@ describe('updateQuery on a simple query', () => {
 
     const client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const obsHandle = client.watchQuery({
@@ -100,7 +100,7 @@ describe('updateQuery on a query with required and optional variables', () => {
 
     const client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const obsHandle = client.watchQuery({
@@ -215,7 +215,7 @@ describe('fetchMore on an observable query', () => {
 
     client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const obsHandle = client.watchQuery<any>({
@@ -319,7 +319,7 @@ describe('fetchMore on an observable query', () => {
 
     client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const observable = client.watchQuery({
@@ -381,7 +381,7 @@ describe('fetchMore on an observable query', () => {
 
     client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const observable = client.watchQuery({
@@ -517,7 +517,7 @@ describe('fetchMore on an observable query with connection', () => {
 
     client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const obsHandle = client.watchQuery<any>({
@@ -585,7 +585,7 @@ describe('fetchMore on an observable query with connection', () => {
 
     client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const observable = client.watchQuery({
@@ -647,7 +647,7 @@ describe('fetchMore on an observable query with connection', () => {
 
     client = new ApolloClient({
       link,
-      cache: new InMemoryCache(),
+      cache: new cacheImplementation(),
     });
 
     const observable = client.watchQuery({
