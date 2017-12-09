@@ -4,8 +4,8 @@ import { assign } from 'lodash';
 import gql from 'graphql-tag';
 import { DocumentNode, ExecutionResult } from 'graphql';
 import { ApolloLink, Operation, Observable } from 'apollo-link';
-import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
-
+// import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
+import { ReduxCache as Cache } from 'apollo-cache-redux';
 // mocks
 import mockQueryManager from '../../../__mocks__/mockQueryManager';
 import mockWatchQuery from '../../../__mocks__/mockWatchQuery';
@@ -70,7 +70,7 @@ describe('Link interactions', () => {
     const mockLink = new MockSubscriptionLink();
     const link = ApolloLink.from([evictionLink, mockLink]);
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 
@@ -113,7 +113,7 @@ describe('Link interactions', () => {
 
     const link = new MockSubscriptionLink();
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 
@@ -184,7 +184,7 @@ describe('Link interactions', () => {
 
     const link = new MockSubscriptionLink();
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 
@@ -263,7 +263,7 @@ describe('Link interactions', () => {
     const mockLink = new MockSubscriptionLink();
     const link = ApolloLink.from([evictionLink, mockLink]);
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 
@@ -301,7 +301,7 @@ describe('Link interactions', () => {
     const mockLink = new MockSubscriptionLink();
     const link = ApolloLink.from([evictionLink, mockLink]);
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 

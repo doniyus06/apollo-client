@@ -8,7 +8,8 @@
 import gql from 'graphql-tag';
 import { DocumentNode, ExecutionResult } from 'graphql';
 import { ApolloLink, Operation, Observable } from 'apollo-link';
-import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
+// import { InMemoryCache as Cache, ApolloReducerConfig } from 'apollo-cache-inmemory';
+import { ReduxCache as Cache, ApolloReducerConfig } from 'apollo-cache-redux';
 
 import { MockSubscriptionLink } from '../../../__mocks__/mockLinks';
 
@@ -42,7 +43,7 @@ describe('Subscription lifecycles', () => {
 
     const link = new MockSubscriptionLink();
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 

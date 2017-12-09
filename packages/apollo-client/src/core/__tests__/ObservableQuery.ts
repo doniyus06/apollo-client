@@ -1,9 +1,10 @@
 import gql from 'graphql-tag';
 import { ApolloLink, Observable } from 'apollo-link';
 import {
-  InMemoryCache,
+  // Cache,
   IntrospectionFragmentMatcher,
 } from 'apollo-cache-inmemory';
+import { ReduxCache as Cache } from 'apollo-cache-redux';
 
 import mockQueryManager from '../../__mocks__/mockQueryManager';
 import mockWatchQuery from '../../__mocks__/mockWatchQuery';
@@ -49,7 +50,7 @@ describe('ObservableQuery', () => {
   const createQueryManager = ({ link }: { link?: ApolloLink }) => {
     return new QueryManager({
       link: link || mockSingleLink(),
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
     });
   };
 
@@ -1230,7 +1231,7 @@ describe('ObservableQuery', () => {
 
       const client = new ApolloClient({
         link: ni,
-        cache: new InMemoryCache({
+        cache: new Cache({
           fragmentMatcher: new IntrospectionFragmentMatcher({
             introspectionQueryResultData: {
               __schema: {

@@ -16,7 +16,8 @@ import { ApolloClient, ApolloQueryResult } from '../src/index';
 
 import { times, cloneDeep } from 'lodash';
 
-import { InMemoryCache } from 'apollo-cache-inmemory';
+// import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
+import { ReduxCache as Cache } from 'apollo-cache-redux';
 
 import {
   Operation,
@@ -131,7 +132,7 @@ const getClientInstance = () => {
 
   return new ApolloClient({
     link,
-    cache: new InMemoryCache({ addTypename: false }),
+    cache: new Cache({ addTypename: false }),
   });
 };
 
@@ -155,7 +156,7 @@ group(end => {
     result: simpleResult,
   });
 
-  const cache = new InMemoryCache();
+  const cache = new Cache();
 
   benchmark('constructing an instance', done => {
     new ApolloClient({ link, cache });
@@ -294,7 +295,7 @@ times(7, (countR: number) => {
 
     const client = new ApolloClient({
       link: mockSingleLink(...mockedResponses),
-      cache: new InMemoryCache({
+      cache: new Cache({
         dataIdFromObject: (obj: any) => {
           if (obj.id && obj.__typename) {
             return obj.__typename + obj.id;
@@ -341,7 +342,7 @@ times(7, index => {
   group(end => {
     const client = new ApolloClient({
       link: empty(),
-      cache: new InMemoryCache({
+      cache: new Cache({
         dataIdFromObject,
         addTypename: false,
       }),
@@ -417,7 +418,7 @@ times(7, index => {
       house: { reservations },
     };
 
-    const cache = new InMemoryCache({
+    const cache = new Cache({
       dataIdFromObject,
       addTypename: false,
     });

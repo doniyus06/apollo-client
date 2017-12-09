@@ -4,7 +4,8 @@ import { assign } from 'lodash';
 import gql from 'graphql-tag';
 import { DocumentNode, ExecutionResult, GraphQLError } from 'graphql';
 import { ApolloLink, Operation, Observable } from 'apollo-link';
-import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
+// import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
+import { ReduxCache as Cache, ApolloReducerConfig } from 'apollo-cache-redux';
 
 // mocks
 import mockQueryManager from '../../../__mocks__/mockQueryManager';
@@ -52,9 +53,7 @@ describe('QueryManager', () => {
   }) => {
     return new QueryManager({
       link: link || mockSingleLink(),
-      store: new DataStore(
-        new InMemoryCache({ addTypename: false, ...config }),
-      ),
+      store: new DataStore(new Cache({ addTypename: false, ...config })),
     });
   };
 
@@ -1443,7 +1442,7 @@ describe('QueryManager', () => {
 
       // Make sure we updated the store with the new data
       expect(
-        (queryManager.dataStore.getCache() as InMemoryCache).extract()['5'],
+        (queryManager.dataStore.getCache() as Cache).extract()['5'],
       ).toEqual({
         id: '5',
         isPrivate: true,
@@ -1475,7 +1474,7 @@ describe('QueryManager', () => {
 
       // Make sure we updated the store with the new data
       expect(
-        (queryManager.dataStore.getCache() as InMemoryCache).extract()['5'],
+        (queryManager.dataStore.getCache() as Cache).extract()['5'],
       ).toEqual({
         id: '5',
         isPrivate: true,
@@ -1517,7 +1516,7 @@ describe('QueryManager', () => {
 
         // Make sure we updated the store with the new data
         expect(
-          (queryManager.dataStore.getCache() as InMemoryCache).extract()['5'],
+          (queryManager.dataStore.getCache() as Cache).extract()['5'],
         ).toEqual({
           id: '5',
           isPrivate: true,
@@ -1884,11 +1883,9 @@ describe('QueryManager', () => {
           })
           .catch(() => {
             // make that the error thrown doesn't empty the state
-            expect(
-              (queryManager.dataStore.getCache() as InMemoryCache).extract()[
-                '$ROOT_QUERY.author'
-              ] as Object,
-            ).toEqual(data['author']);
+            expect((queryManager.dataStore.getCache() as Cache).extract()[
+              '$ROOT_QUERY.author'
+            ] as Object).toEqual(data['author']);
             done();
           });
       })
@@ -1967,17 +1964,15 @@ describe('QueryManager', () => {
         observable,
         errorCallbacks: [
           () => {
-            expect(
-              (queryManager.dataStore.getCache() as InMemoryCache).extract()[
-                '$ROOT_QUERY.author'
-              ] as Object,
-            ).toEqual(data.author);
+            expect((queryManager.dataStore.getCache() as Cache).extract()[
+              '$ROOT_QUERY.author'
+            ] as Object).toEqual(data.author);
           },
         ],
       },
       result => {
         expect(result.data).toEqual(data);
-        expect((queryManager.dataStore.getCache() as InMemoryCache).extract()[
+        expect((queryManager.dataStore.getCache() as Cache).extract()[
           '$ROOT_QUERY.author'
         ] as Object).toEqual(data.author);
       },
@@ -2457,7 +2452,7 @@ describe('QueryManager', () => {
             result: { data: data2 },
           },
         ),
-        store: new DataStore(new InMemoryCache({ addTypename: false })),
+        store: new DataStore(new Cache({ addTypename: false })),
         ssrMode: true,
       });
 
@@ -2999,9 +2994,9 @@ describe('QueryManager', () => {
 
       queryManager.resetStore();
 
-      expect(
-        (queryManager.dataStore.getCache() as InMemoryCache).extract(),
-      ).toEqual({});
+      expect((queryManager.dataStore.getCache() as Cache).extract()).toEqual(
+        {},
+      );
       expect(queryManager.queryStore.getStore()).toEqual({});
       expect(queryManager.mutationStore.getStore()).toEqual({});
     });
@@ -4318,7 +4313,7 @@ describe('QueryManager', () => {
         { request: { query: query3 }, result: { data: { three: 3 } } },
         { request: { query: query4 }, result: { data: { four: 4 } } },
       );
-      const cache = new InMemoryCache();
+      const cache = new Cache();
 
       const queryManager = new QueryManager({
         link,

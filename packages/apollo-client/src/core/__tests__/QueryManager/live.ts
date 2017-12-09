@@ -8,7 +8,8 @@
 import gql from 'graphql-tag';
 import { DocumentNode, ExecutionResult } from 'graphql';
 import { ApolloLink, Operation, Observable } from 'apollo-link';
-import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
+// import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
+import { ReduxCache as Cache, ApolloReducerConfig } from 'apollo-cache-redux';
 
 import { MockSubscriptionLink } from '../../../__mocks__/mockLinks';
 
@@ -48,7 +49,7 @@ describe('Live queries', () => {
     };
     const link = new MockSubscriptionLink();
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 
@@ -114,7 +115,7 @@ describe('Live queries', () => {
     let count = 0;
     const link = new MockSubscriptionLink();
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 
@@ -198,7 +199,7 @@ describe('Live queries', () => {
     link.onUnsubscribe(() => cleanedupTimes++);
 
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
 

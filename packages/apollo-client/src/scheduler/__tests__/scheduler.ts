@@ -1,4 +1,6 @@
-import { InMemoryCache } from 'apollo-cache-inmemory';
+// import { InMemoryCache as Cache} from 'apollo-cache-inmemory';
+import { ReduxCache as Cache, ApolloReducerConfig } from 'apollo-cache-redux';
+
 import gql from 'graphql-tag';
 
 import { QueryScheduler } from '../scheduler';
@@ -13,7 +15,7 @@ describe('QueryScheduler', () => {
   it('should throw an error if we try to start polling a non-polling query', () => {
     const queryManager = new QueryManager({
       link: mockSingleLink(),
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
     });
 
     const scheduler = new QueryScheduler({
@@ -62,7 +64,7 @@ describe('QueryScheduler', () => {
       result: { data },
     });
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
 
       link: link,
     });
@@ -106,7 +108,7 @@ describe('QueryScheduler', () => {
       result: { data },
     });
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link: link,
     });
     const scheduler = new QueryScheduler({
@@ -154,7 +156,7 @@ describe('QueryScheduler', () => {
       result: { data },
     });
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
 
       link,
     });
@@ -202,7 +204,7 @@ describe('QueryScheduler', () => {
       { request: queryOptions, result: { data: data[2] } },
     );
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
     const scheduler = new QueryScheduler({
@@ -251,7 +253,7 @@ describe('QueryScheduler', () => {
       error,
     });
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link,
     });
     const scheduler = new QueryScheduler({
@@ -294,7 +296,7 @@ describe('QueryScheduler', () => {
       delay: 20000,
     });
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache()),
+      store: new DataStore(new Cache()),
       link,
     });
     const scheduler = new QueryScheduler({
@@ -326,7 +328,7 @@ describe('QueryScheduler', () => {
       result: { data },
     });
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache()),
+      store: new DataStore(new Cache()),
       link,
     });
     const scheduler = new QueryScheduler({
@@ -378,7 +380,7 @@ describe('QueryScheduler', () => {
       pollInterval: interval,
     };
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link: mockSingleLink(
         {
           request: { query: query1 },
@@ -433,7 +435,7 @@ describe('QueryScheduler', () => {
       },
     };
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link: mockSingleLink({
         request: { query },
         result: { data },
@@ -492,7 +494,7 @@ describe('QueryScheduler', () => {
       networkResult,
     );
     const queryManager = new QueryManager({
-      store: new DataStore(new InMemoryCache({ addTypename: false })),
+      store: new DataStore(new Cache({ addTypename: false })),
       link: link,
     });
     const scheduler = new QueryScheduler({
