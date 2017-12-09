@@ -46,7 +46,7 @@ export class InMemoryCache extends ApolloCache<NormalizedCacheObject> {
 
   // Set this while in a transaction to prevent broadcasts...
   // don't forget to turn it back on!
-  private silenceBroadcast: boolean = false;
+  protected silenceBroadcast: boolean = false;
 
   constructor(config: ApolloReducerConfig = {}) {
     super();
