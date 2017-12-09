@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { ApolloLink, Observable } from 'apollo-link';
-import cacheImplementation from './config';
+import Cache from './config';
 import { withWarning } from '../util/wrap';
 
 import ApolloClient from '../';
@@ -9,7 +9,7 @@ describe('ApolloClient', () => {
   describe('constructor', () => {
     it('will throw an error if link is not passed in', () => {
       expect(() => {
-        const client = new ApolloClient({ cache: new cacheImplementation() });
+        const client = new ApolloClient({ cache: new Cache() });
       }).toThrowErrorMatchingSnapshot();
     });
 
@@ -24,7 +24,7 @@ describe('ApolloClient', () => {
     it('will read some data from the store', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           ROOT_QUERY: {
             a: 1,
             b: 2,
@@ -68,7 +68,7 @@ describe('ApolloClient', () => {
     it('will read some deeply nested data from the store', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           ROOT_QUERY: {
             a: 1,
             b: 2,
@@ -166,7 +166,7 @@ describe('ApolloClient', () => {
     it('will read some data from the store with variables', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           ROOT_QUERY: {
             'field({"literal":true,"value":42})': 1,
             'field({"literal":false,"value":42})': 2,
@@ -194,7 +194,7 @@ describe('ApolloClient', () => {
   it('will read some data from the store with default values', () => {
     const client = new ApolloClient({
       link: ApolloLink.empty(),
-      cache: new cacheImplementation().restore({
+      cache: new Cache().restore({
         ROOT_QUERY: {
           'field({"literal":true,"value":-1})': 1,
           'field({"literal":false,"value":42})': 2,
@@ -234,7 +234,7 @@ describe('ApolloClient', () => {
     it('will throw an error when there is no fragment', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       expect(() => {
@@ -268,7 +268,7 @@ describe('ApolloClient', () => {
     it('will throw an error when there is more than one fragment but no fragment name', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       expect(() => {
@@ -312,7 +312,7 @@ describe('ApolloClient', () => {
     it('will read some deeply nested data from the store at any id', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           ROOT_QUERY: {
             __typename: 'Foo',
             a: 1,
@@ -461,7 +461,7 @@ describe('ApolloClient', () => {
     it('will read some data from the store with variables', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           foo: {
             __typename: 'Foo',
             'field({"literal":true,"value":42})': 1,
@@ -490,17 +490,17 @@ describe('ApolloClient', () => {
     it('will return null when an id that can’t be found is provided', () => {
       const client1 = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
       const client2 = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           bar: { __typename: 'Foo', a: 1, b: 2, c: 3 },
         }),
       });
       const client3 = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           foo: { __typename: 'Foo', a: 1, b: 2, c: 3 },
         }),
       });
@@ -548,7 +548,7 @@ describe('ApolloClient', () => {
     it('will write some data to the store', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -560,7 +560,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
         },
@@ -576,7 +576,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -595,7 +595,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 4,
           b: 5,
@@ -607,7 +607,7 @@ describe('ApolloClient', () => {
     it('will write some deeply nested data to the store', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -622,7 +622,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           d: {
@@ -651,7 +651,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           d: {
@@ -712,7 +712,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -746,7 +746,7 @@ describe('ApolloClient', () => {
     it('will write some data to the store with variables', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -766,7 +766,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           'field({"literal":true,"value":42})': 1,
           'field({"literal":false,"value":42})': 2,
@@ -777,7 +777,7 @@ describe('ApolloClient', () => {
     it('will write some data to the store with default values for variables', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -809,7 +809,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           'field({"literal":true,"value":42})': 2,
           'field({"literal":false,"value":-1})': 1,
@@ -820,7 +820,7 @@ describe('ApolloClient', () => {
     it('should warn when the data provided does not match the query shape', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       return withWarning(() => {
@@ -852,7 +852,7 @@ describe('ApolloClient', () => {
     it('will throw an error when there is no fragment', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       expect(() => {
@@ -888,7 +888,7 @@ describe('ApolloClient', () => {
     it('will throw an error when there is more than one fragment but no fragment name', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       expect(() => {
@@ -934,7 +934,7 @@ describe('ApolloClient', () => {
     it('will write some deeply nested data into the store at any id', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation({ dataIdFromObject: (o: any) => o.id }),
+        cache: new Cache({ dataIdFromObject: (o: any) => o.id }),
       });
 
       client.writeFragment({
@@ -954,7 +954,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           e: 4,
@@ -990,7 +990,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           e: 4,
@@ -1020,7 +1020,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           e: 4,
@@ -1051,7 +1051,7 @@ describe('ApolloClient', () => {
         `,
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           e: 4,
@@ -1101,7 +1101,7 @@ describe('ApolloClient', () => {
         fragmentName: 'fooFragment',
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           e: 4,
@@ -1145,7 +1145,7 @@ describe('ApolloClient', () => {
         fragmentName: 'barFragment',
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           e: 4,
@@ -1169,7 +1169,7 @@ describe('ApolloClient', () => {
     it('will write some data to the store with variables', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeFragment({
@@ -1191,7 +1191,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           'field({"literal":true,"value":42})': 1,
@@ -1203,7 +1203,7 @@ describe('ApolloClient', () => {
     it('should warn when the data provided does not match the fragment shape', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       return withWarning(() => {
@@ -1247,7 +1247,7 @@ describe('ApolloClient', () => {
       });
       const client = new ApolloClient({
         link,
-        cache: new cacheImplementation({
+        cache: new Cache({
           dataIdFromObject: result => {
             if (result.id && result.__typename) {
               return result.__typename + result.id;
@@ -1306,7 +1306,7 @@ describe('ApolloClient', () => {
     it('will write data locally which will then be read back', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation().restore({
+        cache: new Cache().restore({
           foo: {
             __typename: 'Foo',
             a: 1,
@@ -1455,7 +1455,7 @@ describe('ApolloClient', () => {
         bar: { __typename: 'Bar', d: 8, e: 9, f: 6 },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         foo: {
           __typename: 'Foo',
           a: 7,
@@ -1479,7 +1479,7 @@ describe('ApolloClient', () => {
     it('will write data to a specific id', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation({
+        cache: new Cache({
           dataIdFromObject: (o: any) => o.key,
         }),
       });
@@ -1541,7 +1541,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -1573,7 +1573,7 @@ describe('ApolloClient', () => {
     it('will not use a default id getter if __typename is not present', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation({
+        cache: new Cache({
           addTypename: false,
         }),
       });
@@ -1624,7 +1624,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -1675,7 +1675,7 @@ describe('ApolloClient', () => {
     it('will not use a default id getter if id and _id are not present', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -1732,7 +1732,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -1785,7 +1785,7 @@ describe('ApolloClient', () => {
     it('will use a default id getter if __typename and id are present', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -1816,7 +1816,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -1848,7 +1848,7 @@ describe('ApolloClient', () => {
     it('will use a default id getter if __typename and _id are present', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -1879,7 +1879,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -1911,7 +1911,7 @@ describe('ApolloClient', () => {
     it('will not use a default id getter if id is present and __typename is not present', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation({
+        cache: new Cache({
           addTypename: false,
         }),
       });
@@ -1939,7 +1939,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -1969,7 +1969,7 @@ describe('ApolloClient', () => {
     it('will not use a default id getter if _id is present but __typename is not present', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation({
+        cache: new Cache({
           addTypename: false,
         }),
       });
@@ -1997,7 +1997,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -2027,7 +2027,7 @@ describe('ApolloClient', () => {
     it('will not use a default id getter if either _id or id is present when __typename is not also present', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation({
+        cache: new Cache({
           addTypename: false,
         }),
       });
@@ -2082,7 +2082,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,
@@ -2133,7 +2133,7 @@ describe('ApolloClient', () => {
     it('will use a default id getter if one is not specified and __typename is present along with either _id or id', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new cacheImplementation(),
+        cache: new Cache(),
       });
 
       client.writeQuery({
@@ -2192,7 +2192,7 @@ describe('ApolloClient', () => {
         },
       });
 
-      expect((client.cache as cacheImplementation).extract()).toEqual({
+      expect((client.cache as Cache).extract()).toEqual({
         ROOT_QUERY: {
           a: 1,
           b: 2,

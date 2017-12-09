@@ -2,7 +2,7 @@ import { ApolloLink, Observable } from 'apollo-link';
 import { cloneDeep } from 'lodash';
 import gql from 'graphql-tag';
 
-import cacheImplementation from './config';
+import Cache from './config';
 import { mockSingleLink } from '../__mocks__/mockLinks';
 import ApolloClient from '..';
 
@@ -131,7 +131,7 @@ describe('mutation results', () => {
 
     client = new ApolloClient({
       link,
-      cache: new cacheImplementation({
+      cache: new Cache({
         dataIdFromObject: (obj: any) => {
           if (obj.id && obj.__typename) {
             return obj.__typename + obj.id;
@@ -159,7 +159,7 @@ describe('mutation results', () => {
 
     client = new ApolloClient({
       link,
-      cache: new cacheImplementation({
+      cache: new Cache({
         dataIdFromObject: (obj: any) => {
           if (obj.id && obj.__typename) {
             return obj.__typename + obj.id;
@@ -270,7 +270,7 @@ describe('mutation results', () => {
 
     const client = new ApolloClient({
       link,
-      cache: new cacheImplementation({
+      cache: new Cache({
         dataIdFromObject: (obj: any) => {
           if (obj.id && obj.__typename) {
             return obj.__typename + obj.id;
@@ -757,7 +757,7 @@ describe('mutation results', () => {
 
     client = new ApolloClient({
       link,
-      cache: new cacheImplementation({ addTypename: false }),
+      cache: new Cache({ addTypename: false }),
     });
 
     const watchedQuery = client.watchQuery({
@@ -804,7 +804,7 @@ describe('mutation results', () => {
     let count = 0;
 
     client = new ApolloClient({
-      cache: new cacheImplementation({ addTypename: false }),
+      cache: new Cache({ addTypename: false }),
       link: ApolloLink.from([
         ({ variables }) =>
           new Observable(observer => {
@@ -865,7 +865,7 @@ describe('mutation results', () => {
       }),
     ])
       .then(() => {
-        expect((client.cache as cacheImplementation).extract()).toEqual({
+        expect((client.cache as Cache).extract()).toEqual({
           ROOT_MUTATION: {
             'result({"a":1,"b":2})': 'hello',
             'result({"a":1,"c":3})': 'world',
@@ -882,7 +882,7 @@ describe('mutation results', () => {
     let count = 0;
 
     client = new ApolloClient({
-      cache: new cacheImplementation({ addTypename: false }),
+      cache: new Cache({ addTypename: false }),
       link: ApolloLink.from([
         ({ variables }) =>
           new Observable(observer => {
@@ -942,7 +942,7 @@ describe('mutation results', () => {
       }),
     ])
       .then(() => {
-        expect((client.cache as cacheImplementation).extract()).toEqual({
+        expect((client.cache as Cache).extract()).toEqual({
           ROOT_MUTATION: {
             'result({"a":1,"b":"water"})': 'hello',
             'result({"a":2,"b":"cheese","c":3})': 'world',
@@ -958,7 +958,7 @@ describe('mutation results', () => {
     let count = 0;
 
     client = new ApolloClient({
-      cache: new cacheImplementation({ addTypename: false }),
+      cache: new Cache({ addTypename: false }),
       link: ApolloLink.from([
         ({ variables }) =>
           new Observable(observer => {
@@ -1019,7 +1019,7 @@ describe('mutation results', () => {
       }),
     ])
       .then(() => {
-        expect((client.cache as cacheImplementation).extract()).toEqual({
+        expect((client.cache as Cache).extract()).toEqual({
           ROOT_MUTATION: {
             'result({"a":1,"b":2,"c":null})': 'hello',
             'result({"a":1,"b":null,"c":3})': 'world',

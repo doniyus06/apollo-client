@@ -3,7 +3,7 @@ import { ApolloLink, Operation } from 'apollo-link';
 
 import { DocumentNode, OperationDefinitionNode } from 'graphql';
 
-import cacheImplementation from './config';
+import Cache from './config';
 import { mockSingleLink, mockObservableLink } from '../__mocks__/mockLinks';
 
 import ApolloClient from '../';
@@ -85,7 +85,7 @@ describe('subscribeToMore', () => {
     let counter = 0;
 
     const client = new ApolloClient({
-      cache: new cacheImplementation({ addTypename: false }),
+      cache: new Cache({ addTypename: false }),
       link,
     });
 
@@ -137,7 +137,7 @@ describe('subscribeToMore', () => {
 
     const client = new ApolloClient({
       link,
-      cache: new cacheImplementation({ addTypename: false }),
+      cache: new Cache({ addTypename: false }),
     });
 
     const obsHandle = client.watchQuery({
@@ -196,7 +196,7 @@ describe('subscribeToMore', () => {
 
     const client = new ApolloClient({
       link,
-      cache: new cacheImplementation({ addTypename: false }),
+      cache: new Cache({ addTypename: false }),
     });
 
     const obsHandle = client.watchQuery({
