@@ -1,5 +1,6 @@
 // import { InMemoryCache as Cache} from 'apollo-cache-inmemory';
-import { ReduxCache as Cache, ApolloReducerConfig } from 'apollo-cache-redux';
+// import { ReduxCache as Cache, ApolloReducerConfig } from 'apollo-cache-redux';
+import { NullCache as Cache } from 'apollo-cache-null';
 
 import gql from 'graphql-tag';
 
