@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { ApolloLink, Observable } from 'apollo-link';
-import Cache from './config';
+import { wrapReduxCache as Cache } from './config';
 import { withWarning } from '../util/wrap';
 
 import ApolloClient from '../';
@@ -1311,7 +1311,7 @@ describe('ApolloClient', () => {
       `;
 
       const client = new ApolloClient({
-        cache: new InMemoryCache(),
+        cache: new Cache(),
         link: ApolloLink.empty(),
       });
 
@@ -1332,7 +1332,7 @@ describe('ApolloClient', () => {
       `;
 
       const client = new ApolloClient({
-        cache: new InMemoryCache(),
+        cache: new Cache(),
         link: ApolloLink.empty(),
       });
 
@@ -1363,7 +1363,7 @@ describe('ApolloClient', () => {
       `;
 
       const client = new ApolloClient({
-        cache: new InMemoryCache(),
+        cache: new Cache(),
         link: ApolloLink.empty(),
       });
 
@@ -1428,7 +1428,7 @@ describe('ApolloClient', () => {
       };
 
       const client = new ApolloClient({
-        cache: new InMemoryCache(),
+        cache: new Cache(),
         link: ApolloLink.empty(),
       });
 

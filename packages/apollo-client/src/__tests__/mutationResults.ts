@@ -2,7 +2,7 @@ import { ApolloLink, Observable } from 'apollo-link';
 import { cloneDeep } from 'lodash';
 import gql from 'graphql-tag';
 
-import Cache from './config';
+import { wrapReduxCache as Cache } from './config';
 import { mockSingleLink } from '../__mocks__/mockLinks';
 import ApolloClient from '..';
 

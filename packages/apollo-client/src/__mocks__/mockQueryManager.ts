@@ -4,7 +4,7 @@ import { mockSingleLink, MockedResponse } from './mockLinks';
 
 import { DataStore } from '../../src/data/store';
 // import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { ReduxCache as Cache } from 'apollo-cache-redux';
+import { wrapReduxCache as Cache } from '../__tests__/config';
 
 // Helper method for the tests that construct a query manager out of a
 // a list of mocked responses for a mocked network interface.

@@ -4,7 +4,7 @@ import {
   // Cache,
   IntrospectionFragmentMatcher,
 } from 'apollo-cache-inmemory';
-import { ReduxCache as Cache } from 'apollo-cache-redux';
+import {wrapReduxCache as Cache} from "../../__tests__/config";
 
 import mockQueryManager from '../../__mocks__/mockQueryManager';
 import mockWatchQuery from '../../__mocks__/mockWatchQuery';

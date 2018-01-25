@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { DocumentNode, ExecutionResult, GraphQLError } from 'graphql';
 import { ApolloLink, Operation, Observable } from 'apollo-link';
 // import { InMemoryCache, ApolloReducerConfig } from 'apollo-cache-inmemory';
-import { ReduxCache as Cache, ApolloReducerConfig } from 'apollo-cache-redux';
+import { wrapReduxCache as Cache } from '../../../../src/__tests__/config';
 
 // mocks
 import mockQueryManager from '../../../__mocks__/mockQueryManager';

@@ -3,7 +3,7 @@ import { ApolloLink, Operation } from 'apollo-link';
 
 import { DocumentNode, OperationDefinitionNode } from 'graphql';
 
-import Cache from './config';
+import { wrapReduxCache as Cache } from "./config";
 import { mockSingleLink, mockObservableLink } from '../__mocks__/mockLinks';
 
 import ApolloClient from '../';

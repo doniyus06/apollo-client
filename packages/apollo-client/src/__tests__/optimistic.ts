@@ -1,7 +1,7 @@
 import { assign, cloneDeep } from 'lodash';
 import { addTypenameToDocument } from 'apollo-utilities';
 
-import Cache from './config';
+import { wrapReduxCache as Cache } from './config';
 import { mockSingleLink } from '../__mocks__/mockLinks';
 
 import { MutationQueryReducersMap } from '../core/types';

@@ -8,7 +8,7 @@ import {
   FragmentMatcherInterface,
 } from 'apollo-cache-inmemory';
 
-import Cache from './config';
+import { wrapReduxCache as Cache } from './config';
 import { QueryManager } from '../core/QueryManager';
 import { WatchQueryOptions } from '../core/watchQueryOptions';
 
@@ -1630,7 +1630,7 @@ describe('client', () => {
     it('errors when being used on query with defaultOptions', () => {
       const client = new ApolloClient({
         link: ApolloLink.empty(),
-        cache: new InMemoryCache(),
+        cache: new Cache(),
         defaultOptions: {
           query: {
             fetchPolicy: 'cache-and-network',
@@ -2211,7 +2211,7 @@ describe('client', () => {
   it('has an onResetStore method which takes a callback to be called after resetStore', async () => {
     const client = new ApolloClient({
       link: ApolloLink.empty(),
-      cache: new InMemoryCache(),
+      cache: new Cache(),
     });
 
     const onResetStore = jest.fn();
@@ -2225,7 +2225,7 @@ describe('client', () => {
   it('onResetStore returns a method that unsubscribes the callback', async () => {
     const client = new ApolloClient({
       link: ApolloLink.empty(),
-      cache: new InMemoryCache(),
+      cache: new Cache(),
     });
 
     const onResetStore = jest.fn();
@@ -2242,7 +2242,7 @@ describe('client', () => {
 
     const client = new ApolloClient({
       link: ApolloLink.empty(),
-      cache: new InMemoryCache(),
+      cache: new Cache(),
     });
 
     let count = 0;

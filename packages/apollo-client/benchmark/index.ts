@@ -17,7 +17,7 @@ import { ApolloClient, ApolloQueryResult } from '../src/index';
 import { times, cloneDeep } from 'lodash';
 
 // import { InMemoryCache as Cache } from 'apollo-cache-inmemory';
-import { ReduxCache as Cache } from 'apollo-cache-redux';
+import { wrapReduxCache as Cache } from '../../../../src/__tests__/config';
 
 import {
   Operation,
