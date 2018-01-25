@@ -1624,7 +1624,22 @@ describe('client', () => {
       });
       expect(() => {
         client.query({ query, fetchPolicy: 'cache-and-network' });
+      }).toThrowError(/cache-and-network fetchPolicy/);
+    });
+
+    it('errors when being used on query with defaultOptions', () => {
+      const client = new ApolloClient({
+        link: ApolloLink.empty(),
+        cache: new InMemoryCache(),
+        defaultOptions: {
+          query: {
+            fetchPolicy: 'cache-and-network',
+          },
+        },
       });
+      expect(() => {
+        client.query({ query });
+      }).toThrowError(/cache-and-network fetchPolicy/);
     });
 
     it('fetches from cache first, then network', done => {
@@ -2191,6 +2206,64 @@ describe('client', () => {
       },
     } as QueryManager;
     client.resetStore();
+  });
+
+  it('has an onResetStore method which takes a callback to be called after resetStore', async () => {
+    const client = new ApolloClient({
+      link: ApolloLink.empty(),
+      cache: new InMemoryCache(),
+    });
+
+    const onResetStore = jest.fn();
+    client.onResetStore(onResetStore);
+
+    await client.resetStore();
+
+    expect(onResetStore).toHaveBeenCalled();
+  });
+
+  it('onResetStore returns a method that unsubscribes the callback', async () => {
+    const client = new ApolloClient({
+      link: ApolloLink.empty(),
+      cache: new InMemoryCache(),
+    });
+
+    const onResetStore = jest.fn();
+    const unsubscribe = client.onResetStore(onResetStore);
+
+    unsubscribe();
+
+    await client.resetStore();
+    expect(onResetStore).not.toHaveBeenCalled();
+  });
+
+  it('resetStore waits until all onResetStore callbacks are called', async () => {
+    const delay = time => new Promise(r => setTimeout(r, time));
+
+    const client = new ApolloClient({
+      link: ApolloLink.empty(),
+      cache: new InMemoryCache(),
+    });
+
+    let count = 0;
+    const onResetStoreOne = jest.fn(async () => {
+      expect(count).toEqual(0);
+      await delay(10).then(() => count++);
+      expect(count).toEqual(1);
+    });
+
+    const onResetStoreTwo = jest.fn(async () => {
+      expect(count).toEqual(0);
+      await delay(11).then(() => count++);
+      expect(count).toEqual(2);
+    });
+
+    client.onResetStore(onResetStoreOne);
+    client.onResetStore(onResetStoreTwo);
+
+    expect(count).toEqual(0);
+    await client.resetStore();
+    expect(count).toEqual(2);
   });
 
   it('has a reFetchObservableQueries method which calls QueryManager', done => {

@@ -1,4 +1,4 @@
-import { execute, ApolloLink, GraphQLRequest, FetchResult } from 'apollo-link';
+import { execute, ApolloLink, FetchResult } from 'apollo-link';
 import { ExecutionResult, DocumentNode } from 'graphql';
 import { print } from 'graphql/language/printer';
 import { DedupLink as Deduplicator } from 'apollo-link-dedup';
@@ -139,14 +139,7 @@ export class QueryManager<TStore> {
         getDefaultValues(getMutationDefinition(mutation)),
         variables,
       ));
-
     const mutationString = print(mutation);
-    const request = {
-      query: mutation,
-      variables,
-      operationName: getOperationName(mutation) || undefined,
-      context,
-    } as GraphQLRequest;
 
     this.setQuery(mutationId, () => ({ document: mutation }));
 
@@ -186,17 +179,12 @@ export class QueryManager<TStore> {
     return new Promise((resolve, reject) => {
       let storeResult: FetchResult<T> | null;
       let error: ApolloError;
-      let newRequest = {
-        context: {},
-        ...request,
-        query: cache.transformForLink
-          ? cache.transformForLink(request.query)
-          : request.query,
-      };
 
-      (newRequest as any).context.cache = this.dataStore.getCache();
-
-      execute(this.link, newRequest).subscribe({
+      const operation = this.buildOperationForLink(mutation, variables, {
+        ...context,
+        optimisticResponse,
+      });
+      execute(this.link, operation).subscribe({
         next: (result: ExecutionResult) => {
           if (result.errors && errorPolicy === 'none') {
             error = new ApolloError({
@@ -365,9 +353,7 @@ export class QueryManager<TStore> {
       const networkResult = this.fetchRequest({
         requestId,
         queryId,
-        document: cache.transformForLink
-          ? cache.transformForLink(query)
-          : query,
+        document: query,
         options,
         fetchMoreForQueryId,
       }).catch(error => {
@@ -890,12 +876,6 @@ export class QueryManager<TStore> {
       options.variables,
     );
 
-    const request: GraphQLRequest = {
-      query: transformedDoc,
-      variables,
-      operationName: getOperationName(transformedDoc) || undefined,
-    };
-
     let sub: Subscription;
     let observers: Observer<any>[] = [];
 
@@ -926,13 +906,10 @@ export class QueryManager<TStore> {
           },
         };
 
-        let newRequest = {
-          ...request,
-          query: cache.transformForLink
-            ? cache.transformForLink(request.query)
-            : request.query,
-        };
-        sub = execute(this.link, newRequest).subscribe(handler);
+        // TODO: Should subscriptions also accept a `context` option to pass
+        // through to links?
+        const operation = this.buildOperationForLink(transformedDoc, variables);
+        sub = execute(this.link, operation).subscribe(handler);
       }
 
       return () => {
@@ -1042,23 +1019,18 @@ export class QueryManager<TStore> {
     fetchMoreForQueryId?: string;
   }): Promise<ExecutionResult> {
     const { variables, context, errorPolicy = 'none' } = options;
-    const request = {
-      query: document,
-      variables,
-      operationName: getOperationName(document) || undefined,
-      context: context || {},
-    };
-
-    request.context.forceFetch = !this.queryDeduplication;
-
-    // add the cache to the context to links can do things with it
-    request.context.cache = this.dataStore.getCache();
+    const operation = this.buildOperationForLink(document, variables, {
+      ...context,
+      // TODO: Should this be included for all entry points via
+      // buildOperationForLink?
+      forceFetch: !this.queryDeduplication,
+    });
 
     let resultFromStore: any;
     let errorsFromStore: any;
     const retPromise = new Promise<ApolloQueryResult<T>>((resolve, reject) => {
       this.addFetchQueryPromise<T>(requestId, retPromise, resolve, reject);
-      const subscription = execute(this.deduplicator, request).subscribe({
+      const subscription = execute(this.deduplicator, operation).subscribe({
         next: (result: ExecutionResult) => {
           // default the lastRequestId to 1
           const { lastRequestId } = this.getQuery(queryId);
@@ -1190,5 +1162,24 @@ export class QueryManager<TStore> {
     if (fetchMoreForQueryId) {
       this.setQuery(fetchMoreForQueryId, () => ({ invalidated }));
     }
+  }
+
+  private buildOperationForLink(
+    document: DocumentNode,
+    variables: any,
+    extraContext?: any,
+  ) {
+    const cache = this.dataStore.getCache();
+    return {
+      query: cache.transformForLink
+        ? cache.transformForLink(document)
+        : document,
+      variables,
+      operationName: getOperationName(document) || undefined,
+      context: {
+        ...extraContext,
+        cache,
+      },
+    };
   }
 }
